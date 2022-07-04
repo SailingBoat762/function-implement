@@ -1,0 +1,65 @@
+<div id="app"></div>
+<script>
+    let activeEffect;
+
+    let obj = {
+        message: "hello",
+        count: 0,
+    };
+
+    const effect = function(effectFn) {
+        activeEffect = effectFn;
+
+        effectFn();
+    };
+
+    const map = new WeakMap();
+
+    const proxy = new Proxy(obj, {
+        get(t, k, r) {
+            let targetMap = map.get(t);
+
+            if (!targetMap) {
+                map.set(t, (targetMap = new Map()));
+            }
+
+            let dep = targetMap.get(k);
+
+            if (!dep) {
+                dep = new Set();
+            }
+            if (activeEffect) {
+                dep.add(activeEffect);
+            }
+
+            targetMap.set(k, dep);
+
+            return t[k];
+        },
+
+        set(t, k, val) {
+            t[k] = val;
+            let target = map.get(t);
+            let dep = target.get(k);
+            if (!dep) return true;
+            dep.forEach((cb) => {
+                cb();
+            });
+            return true;
+        },
+    });
+
+    function render() {
+        let div = document.querySelector("#app");
+        div.innerHTML = `<h1>${proxy.message}</h1><h2>${proxy.count}</h2>`;
+    }
+
+    effect(() => {
+        render();
+    });
+
+    setInterval(() => {
+        proxy.count++;
+        console.log(proxy.count);
+    }, 1000);
+</script>
