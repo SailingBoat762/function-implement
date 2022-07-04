@@ -16,3 +16,9 @@ function myNew(fn, ...args) {
     }
 
 }
+
+let People = function (name) {
+    this.name = name
+}
+let person = myNew(People, 'luci')
+console.log(person);
