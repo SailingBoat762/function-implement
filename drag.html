@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="box"></div>
+    <style>
+        #box {
+            width: 100px;
+            height: 100px;
+            background-color: aqua;
+        }
+    </style>
+
+    <script>
+        const box = document.querySelector("#box")
+        box.onmousedown = function (event) {
+            // 计算鼠标点的位置在哪
+            let shiftx = event.clientX - box.getBoundingClientRect().left
+            let shifty = event.clientY - box.getBoundingClientRect().top
+            box.style.position = 'absolute'
+
+            function move(x, y) {
+                box.style.left = x + shiftx + 'px'
+                box.style.top = x + shifty + 'px'
+            }
+
+            function mouseMove(event) {
+                move(event.clientX, event.clientY)
+            }
+
+            // box上mousedown时，给document添加一个mouseMove，根据鼠标的移动距离，设置box的移动距离
+            document.onmousemove = mouseMove
+            // 在box上抬起时，清除事件
+            box.onmouseup = function () {
+                document.onmousemove = null
+                box.onmouseup = null
+            }
+        };
+
+        // 取消ondragstart事件的默认行为防止冲突
+        box.ondragstart = function () {
+            return false;
+        };
+    </script>
+</body>
+
+</html>
